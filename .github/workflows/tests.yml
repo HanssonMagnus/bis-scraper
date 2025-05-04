@@ -15,33 +15,33 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    
+
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
-        
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -e ".[dev]"
-        
+
     - name: Run tests
       run: |
         pytest
-        
+
     - name: Check types with mypy
       run: |
         mypy bis_scraper
-        
+
     - name: Check code style with Black
       run: |
         black --check bis_scraper tests
-        
+
     - name: Check import order with isort
       run: |
         isort --check bis_scraper tests
-        
+
     - name: Run linter with ruff
       run: |
-        ruff bis_scraper tests 
+        ruff check bis_scraper tests
