@@ -23,7 +23,7 @@ classifiers = [
 dependencies = [
     "requests>=2.28.0",
     "beautifulsoup4~=4.8.0",  # Required by textract
-    "textract>=1.6.0",
+    "textract==1.6.3",  # Pin to a specific version to avoid dependency issues
     "click>=8.1.0",
     "pydantic>=2.0.0",
 ]
