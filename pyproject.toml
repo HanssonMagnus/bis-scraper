@@ -10,10 +10,9 @@ authors = [
 ]
 description = "A Python package to download and transform speeches from central banks globally"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 classifiers = [
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -37,6 +36,8 @@ dev = [
     "mypy>=1.0.0",
     "ruff>=0.0.260",
     "responses>=0.22.0",
+    "types-requests>=2.28.0",
+    "types-beautifulsoup4>=4.8.0",
 ]
 
 [project.urls]
@@ -55,14 +56,14 @@ python_files = "test_*.py"
 
 [tool.black]
 line-length = 88
-target-version = ["py38"]
+target-version = ["py39"]
 
 [tool.isort]
 profile = "black"
 line_length = 88
 
 [tool.mypy]
-python_version = "3.8"
+python_version = "3.9"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
@@ -71,4 +72,4 @@ disallow_incomplete_defs = true
 [tool.ruff]
 select = ["E", "F", "B", "I"]
 line-length = 88
-target-version = "py38" 
+target-version = "py39" 

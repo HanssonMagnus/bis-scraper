@@ -1,7 +1,7 @@
 # BIS Scraper
 
 [![Tests](https://github.com/HanssonMagnus/bis-scraper/actions/workflows/tests.yml/badge.svg)](https://github.com/HanssonMagnus/bis-scraper/actions/workflows/tests.yml)
-[![Python Versions](https://img.shields.io/badge/python-3.8%20|%203.9%20|%203.10-blue)](https://github.com/HanssonMagnus/bis-scraper)
+[![Python Versions](https://img.shields.io/badge/python-3.9%20|%203.10%20|%203.11-blue)](https://github.com/HanssonMagnus/bis-scraper)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1)](https://pycqa.github.io/isort/)
@@ -47,7 +47,7 @@ source .venv/bin/activate
 
 ### Dependencies
 
-The package requires Python 3.8+ and the following main dependencies:
+The package requires Python 3.9+ and the following main dependencies:
 - requests
 - beautifulsoup4
 - textract
