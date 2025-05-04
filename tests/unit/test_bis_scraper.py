@@ -83,10 +83,10 @@ class TestBisScraper(unittest.TestCase):
         self.assertTrue(ecb_dir.exists())
         self.assertTrue((ecb_dir / f"{self.speech_code_without_r}.pdf").exists())
 
-        # Check metadata file
-        metadata_file = ecb_dir / "european_central_bank_meta.txt"
-        self.assertTrue(metadata_file.exists())
-        with open(metadata_file, "r") as f:
+        # Check JSON metadata file
+        json_metadata_file = ecb_dir / "metadata.json"
+        self.assertTrue(json_metadata_file.exists())
+        with open(json_metadata_file, "r") as f:
             metadata_content = f.read()
         self.assertIn(self.speech_code_without_r, metadata_content)
         self.assertIn("European Central Bank", metadata_content)

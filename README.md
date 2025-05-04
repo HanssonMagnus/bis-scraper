@@ -241,7 +241,6 @@ data/
 │   ├── european_central_bank/
 │   │   ├── 200101a.pdf    # Speech from 2020-01-01, first speech of the day
 │   │   ├── 200103b.pdf    # Speech from 2020-01-03, second speech of the day
-│   │   ├── european_central_bank_meta.txt  # Legacy metadata format (plain text)
 │   │   └── metadata.json  # Structured metadata in JSON format
 │   └── federal_reserve_system/
 │       └── ...

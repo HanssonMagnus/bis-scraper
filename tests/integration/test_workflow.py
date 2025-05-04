@@ -1,6 +1,7 @@
 """Integration tests for the complete workflow."""
 
 import datetime
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -140,9 +141,18 @@ class TestCompleteWorkflow(unittest.TestCase):
         with open(pdf_file, "wb") as f:
             f.write(b"Existing PDF content")
 
-        # Create metadata file
-        with open(ecb_dir / "european_central_bank_meta.txt", "w") as f:
-            f.write(f"{self.speech_code_without_r}: Existing metadata")
+        # Create JSON metadata file instead of text metadata
+        metadata_json = {
+            self.speech_code_without_r: {
+                "raw_text": "Existing metadata",
+                "speech_type": "Speech",
+                "speaker": "Mr. John Smith",
+                "role": "Governor of the Central Bank",
+                "date": self.test_date.isoformat(),
+            }
+        }
+        with open(ecb_dir / "metadata.json", "w") as f:
+            json.dump(metadata_json, f)
 
         # Mock HTML and PDF responses (shouldn't be used due to caching)
         responses.add(

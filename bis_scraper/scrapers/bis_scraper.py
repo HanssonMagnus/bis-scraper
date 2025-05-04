@@ -23,7 +23,6 @@ from bis_scraper.utils.file_utils import (
 )
 from bis_scraper.utils.institution_utils import (
     get_institution_from_metadata,
-    normalize_institution_name,
 )
 
 logger = logging.getLogger(__name__)
@@ -196,16 +195,7 @@ class BisScraper:
                 speech_code[1:] if speech_code.startswith("r") else speech_code
             )
 
-            # Save metadata in text format (for backward compatibility)
-            normalized_inst = normalize_institution_name(institution)
-            metadata_filename = f"{normalized_inst}_meta.txt"
-            metadata_path = inst_dir / metadata_filename
-
-            # Append metadata entry to the text file
-            with open(metadata_path, "a", encoding="utf-8") as metadata_file:
-                metadata_file.write(f"{code_without_r}: {metadata_text}\n")
-
-            # Save metadata in JSON format
+            # Save metadata in JSON format only
             save_metadata_to_json(inst_dir, code_without_r, metadata_text, date_obj)
 
             # Format output filename
