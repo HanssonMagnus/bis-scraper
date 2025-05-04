@@ -58,7 +58,7 @@ class BisScraper:
         create_directory(self.output_dir)
         
         # Build cache of existing files (filename without the 'r' prefix)
-        self.existing_files = set()
+        self.existing_files: Set[str] = set()
         if not force_download:
             self._build_existing_files_cache()
             logger.info(f"Found {len(self.existing_files)} existing speech files in cache")

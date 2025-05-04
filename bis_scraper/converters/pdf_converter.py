@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 from typing import List, Optional, Set
 
-import textract
+import textract  # type: ignore
 
 from bis_scraper.models import ConversionResult
 from bis_scraper.utils.date_utils import format_date_for_filename, parse_date_code

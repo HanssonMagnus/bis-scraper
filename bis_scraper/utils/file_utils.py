@@ -66,7 +66,7 @@ def find_existing_files(directory: Path, extension: str) -> Set[str]:
     Returns:
         Set of file codes (without extension)
     """
-    result = set()
+    result: Set[str] = set()
     if not directory.exists():
         return result
     
