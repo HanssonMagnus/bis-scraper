@@ -67,7 +67,7 @@ def main() -> int:
     commands.append((mypy_cmd, "mypy (type checking)"))
     
     # ruff (linting)
-    ruff_cmd = ["ruff"]
+    ruff_cmd = ["ruff", "check"]
     if args.fix:
         ruff_cmd.append("--fix")
     ruff_cmd.extend([str(pkg_dir), str(test_dir)])

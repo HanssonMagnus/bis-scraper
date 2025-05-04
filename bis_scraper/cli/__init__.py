@@ -1,1 +1,1 @@
-"""Command-line interface module.""" 
+"""Command-line interface module."""

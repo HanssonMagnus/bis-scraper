@@ -1,6 +1,5 @@
 """Test fixtures and configuration for the BIS Scraper package."""
 
-import os
 import shutil
 from pathlib import Path
 from typing import Generator
@@ -23,13 +22,13 @@ def test_data_dir(tmp_path: Path) -> Path:
     """Fixture for creating a temporary data directory."""
     data_dir = tmp_path / "data"
     data_dir.mkdir(exist_ok=True)
-    
+
     # Create subdirectories
     (data_dir / RAW_DATA_DIR).mkdir(exist_ok=True)
     (data_dir / TXT_DATA_DIR).mkdir(exist_ok=True)
-    
+
     yield data_dir
-    
+
     # Clean up after test
     if data_dir.exists():
         shutil.rmtree(data_dir)
@@ -40,9 +39,9 @@ def test_log_dir(tmp_path: Path) -> Path:
     """Fixture for creating a temporary log directory."""
     log_dir = tmp_path / "logs"
     log_dir.mkdir(exist_ok=True)
-    
+
     yield log_dir
-    
+
     # Clean up after test
     if log_dir.exists():
         shutil.rmtree(log_dir)
@@ -95,4 +94,4 @@ def sample_date_page_html() -> str:
         </div>
     </body>
     </html>
-    """ 
+    """

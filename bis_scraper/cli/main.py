@@ -5,11 +5,11 @@ Default paths:
 - Log directory: ./logs (from the current working directory)
 """
 
+import datetime
 import logging
 import pathlib
 import sys
-from typing import Optional
-import datetime
+from typing import Optional, Tuple
 
 import click
 
@@ -32,9 +32,7 @@ from bis_scraper import __version__
     default=pathlib.Path("logs"),
     help="Directory to store log files (default: ./logs)",
 )
-@click.option(
-    "--verbose", "-v", is_flag=True, help="Enable verbose output"
-)
+@click.option("--verbose", "-v", is_flag=True, help="Enable verbose output")
 @click.pass_context
 def main(
     ctx: click.Context,
@@ -47,11 +45,11 @@ def main(
     This tool scrapes the Bank for International Settlements website
     for speeches from central banks globally and converts them to
     text format for further processing.
-    
+
     Default paths:
     - Data directory: ./data (relative to current working directory)
     - Log directory: ./logs (relative to current working directory)
-    
+
     Date Ranges:
     - By default, the scraper looks for speeches from 1 year ago to 30 days ago
     - For best results, specify dates known to have speeches with --start-date and --end-date
@@ -64,7 +62,7 @@ def main(
     # Setup logging
     log_level = logging.DEBUG if verbose else logging.INFO
     log_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    
+
     logging.basicConfig(
         level=log_level,
         format=log_format,
@@ -86,14 +84,18 @@ def main(
     "--start-date",
     "-s",
     type=click.DateTime(formats=["%Y-%m-%d"]),
-    default=lambda: (datetime.datetime.now() - datetime.timedelta(days=365)).strftime("%Y-%m-%d"),
+    default=lambda: (datetime.datetime.now() - datetime.timedelta(days=365)).strftime(
+        "%Y-%m-%d"
+    ),
     help="Start date for speeches (YYYY-MM-DD), defaults to 1 year ago",
 )
 @click.option(
     "--end-date",
     "-e",
     type=click.DateTime(formats=["%Y-%m-%d"]),
-    default=lambda: (datetime.datetime.now() - datetime.timedelta(days=30)).strftime("%Y-%m-%d"),
+    default=lambda: (datetime.datetime.now() - datetime.timedelta(days=30)).strftime(
+        "%Y-%m-%d"
+    ),
     help="End date for speeches (YYYY-MM-DD), defaults to 30 days ago",
 )
 @click.option(
@@ -119,16 +121,16 @@ def scrape(
     ctx: click.Context,
     start_date: datetime.datetime,
     end_date: datetime.datetime,
-    institutions: tuple[str, ...],
+    institutions: Tuple[str, ...],
     force: bool,
     limit: Optional[int],
 ) -> None:
     """Scrape speeches from the BIS website."""
     from bis_scraper.scrapers.controller import scrape_bis
-    
+
     data_dir = ctx.obj["data_dir"]
     log_dir = ctx.obj["log_dir"]
-    
+
     click.echo("Starting BIS web scraping...")
     click.echo(f"Data directory: {data_dir.absolute()}")
     click.echo(f"Date range: {start_date.date()} to {end_date.date()}")
@@ -166,16 +168,16 @@ def scrape(
 @click.pass_context
 def convert(
     ctx: click.Context,
-    institutions: tuple[str, ...],
+    institutions: Tuple[str, ...],
     force: bool,
     limit: Optional[int],
 ) -> None:
     """Convert PDF speeches to text format."""
     from bis_scraper.converters.controller import convert_pdfs
-    
+
     data_dir = ctx.obj["data_dir"]
     log_dir = ctx.obj["log_dir"]
-    
+
     click.echo("Starting PDF to text conversion...")
     click.echo(f"Data directory: {data_dir.absolute()}")
     convert_pdfs(
@@ -246,4 +248,4 @@ def run_all(
 if __name__ == "__main__":
     # Use Click's command line interface - no parameters needed here
     # Click will handle the argument parsing
-    main() 
+    main()
