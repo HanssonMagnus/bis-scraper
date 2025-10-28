@@ -9,7 +9,7 @@ from unittest.mock import patch
 
 import responses
 
-from bis_scraper.converters.controller import convert_pdfs
+from bis_scraper.converters.controller import convert_pdfs, convert_pdfs_dates
 from bis_scraper.scrapers.controller import scrape_bis
 from bis_scraper.utils.constants import HTML_EXTENSION, PDF_EXTENSION, SPEECHES_URL
 
@@ -107,10 +107,12 @@ class TestCompleteWorkflow(unittest.TestCase):
         # Mock textract to return converted text
         mock_process.return_value = b"Converted text from the speech PDF"
 
-        # 2. Convert PDFs
-        convert_result = convert_pdfs(
+        # 2. Convert PDFs with the same date range
+        convert_result = convert_pdfs_dates(
             data_dir=self.temp_dir,
             log_dir=self.temp_dir / "logs",
+            start_date=self.test_date,
+            end_date=self.test_date,
             institutions=[self.institution],
             force=False,
         )
@@ -186,9 +188,11 @@ class TestCompleteWorkflow(unittest.TestCase):
             f.write("Existing converted text")
 
         # Convert PDFs - should skip existing
-        convert_result = convert_pdfs(
+        convert_result = convert_pdfs_dates(
             data_dir=self.temp_dir,
             log_dir=self.temp_dir / "logs",
+            start_date=self.test_date,
+            end_date=self.test_date,
             institutions=[self.institution],
             force=False,
         )
@@ -244,9 +248,11 @@ class TestCompleteWorkflow(unittest.TestCase):
         self.assertEqual(content, new_pdf_content)
 
         # Run conversion with force
-        convert_result = convert_pdfs(
+        convert_result = convert_pdfs_dates(
             data_dir=self.temp_dir,
             log_dir=self.temp_dir / "logs",
+            start_date=self.test_date,
+            end_date=self.test_date,
             institutions=[self.institution],
             force=True,
         )

@@ -1,10 +1,11 @@
 """BIS website scraper for central bank speeches."""
 
 import datetime
+import json
 import logging
 import time
 from pathlib import Path
-from typing import List, Optional, Set
+from typing import Any, Dict, List, Optional, Set
 
 import requests
 from bs4 import BeautifulSoup
@@ -55,24 +56,74 @@ class BisScraper:
         # Ensure output directory exists
         create_directory(self.output_dir)
 
+        # Date cache file path
+        self.date_cache_file = self.output_dir / ".bis_scraper_date_cache.json"
+
         # Build cache of existing files (filename without the 'r' prefix)
         self.existing_files: Set[str] = set()
+        # Build cache of fully checked dates
+        self.checked_dates: Dict[str, Dict[str, Any]] = {}
+
         if not force_download:
             self._build_existing_files_cache()
+            self._load_date_cache()
             logger.info(
                 f"Found {len(self.existing_files)} existing speech files in cache"
             )
+            logger.info(f"Found {len(self.checked_dates)} checked dates in cache")
 
     def _build_existing_files_cache(self) -> None:
         """Build cache of existing files to avoid filesystem checks."""
         # Find all institution directories
         for inst_dir in self.output_dir.iterdir():
-            if inst_dir.is_dir():
+            if inst_dir.is_dir() and not inst_dir.name.startswith("."):
                 # Find all PDF files in this institution directory
                 for file_path in inst_dir.glob("*.pdf"):
                     # Extract the code part without the 'r' prefix
                     code = file_path.stem
                     self.existing_files.add(code)
+
+    def _load_date_cache(self) -> None:
+        """Load the date cache from disk."""
+        if self.date_cache_file.exists():
+            try:
+                with open(self.date_cache_file, "r") as f:
+                    cache_data = json.load(f)
+                    # Convert cache format if needed (for backwards compatibility)
+                    if isinstance(cache_data, dict) and "version" in cache_data:
+                        self.checked_dates = cache_data.get("dates", {})
+                    else:
+                        # Old format or corrupted, start fresh
+                        self.checked_dates = {}
+                        logger.warning("Date cache format unrecognized, starting fresh")
+            except Exception as e:
+                logger.warning(f"Could not load date cache: {e}, starting fresh")
+                self.checked_dates = {}
+        else:
+            self.checked_dates = {}
+
+    def _save_date_cache(self) -> None:
+        """Save the date cache to disk."""
+        try:
+            cache_data = {
+                "version": 1,
+                "dates": self.checked_dates,
+                "updated": datetime.datetime.now().isoformat(),
+            }
+            with open(self.date_cache_file, "w") as f:
+                json.dump(cache_data, f, indent=2)
+            logger.debug(f"Saved date cache with {len(self.checked_dates)} dates")
+        except Exception as e:
+            logger.error(f"Could not save date cache: {e}")
+
+    def _get_date_cache_key(self, date_obj: datetime.date) -> str:
+        """Get the cache key for a date, considering institution filtering."""
+        date_str = date_obj.isoformat()
+        if self.institutions:
+            # Include institutions in the key to handle filtered scraping
+            inst_key = ",".join(sorted(self.institutions))
+            return f"{date_str}|{inst_key}"
+        return date_str
 
     def scrape_date(self, date_obj: datetime.date) -> bool:
         """Scrape speeches for a specific date.
@@ -83,6 +134,20 @@ class BisScraper:
         Returns:
             bool: True if processing should continue, False if limit reached
         """
+        # Check date cache first
+        cache_key = self._get_date_cache_key(date_obj)
+        if not self.force_download and cache_key in self.checked_dates:
+            cache_entry = self.checked_dates[cache_key]
+            # Skip this date entirely - it's been fully checked
+            logger.debug(f"Skipping {date_obj.isoformat()} (found in date cache)")
+            # Update result counts from cache
+            self.result.skipped += cache_entry.get("files_found", 0)
+            return True
+
+        # Track if we found any speeches for this date
+        date_had_speeches = False
+        files_found_count = 0
+
         # Format date for URL: YYMMDD (without century)
         date_str = date_obj.strftime("%y%m%d")
 
@@ -97,6 +162,8 @@ class BisScraper:
                 # Skip the network request entirely if we already have this file
                 logger.debug(f"Skipping {speech_code} (found in cache)")
                 self.result.skipped += 1
+                date_had_speeches = True
+                files_found_count += 1
                 continue
 
             url = f"{SPEECHES_URL}/{speech_code}{HTML_EXTENSION}"
@@ -117,13 +184,17 @@ class BisScraper:
 
                 # We found a valid speech, process it
                 logger.info(f"Found speech {speech_code} for {date_obj.isoformat()}")
+                date_had_speeches = True
 
                 # Process the speech
                 pdf_url = f"{SPEECHES_URL}/{speech_code}{PDF_EXTENSION}"
                 should_continue = self._process_speech_from_code(
                     speech_code, pdf_url, date_obj
                 )
-                if not should_continue:
+                if should_continue:
+                    files_found_count += 1
+                else:
+                    # Limit reached, don't mark date as complete
                     return False
 
             except Exception as e:
@@ -133,6 +204,16 @@ class BisScraper:
                         exc_info=True,
                     )
                     self.result.failed += 1
+
+        # Mark this date as fully checked in the cache
+        self.checked_dates[cache_key] = {
+            "checked_at": datetime.datetime.now().isoformat(),
+            "had_speeches": date_had_speeches,
+            "files_found": files_found_count,
+        }
+        # Save cache periodically (every 10 dates to balance performance and safety)
+        if len(self.checked_dates) % 10 == 0:
+            self._save_date_cache()
 
         return True
 
@@ -259,4 +340,6 @@ class BisScraper:
         Returns:
             ScrapingResult object with statistics
         """
+        # Save the date cache one final time
+        self._save_date_cache()
         return self.result

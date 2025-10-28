@@ -4,14 +4,16 @@
 
 # ======= Configuration =======
 # Limit number
-LIMIT_NUM=5
+#LIMIT_NUM=5
 
 # Data storage locations
 DATA_DIR="$HOME/bis_full_data"
 LOG_DIR="$HOME/bis_full_data/logs"
 
 # Date range (format: YYYY-MM-DD)
-START_DATE="1997-01-01"   # BIS speeches start around 1997
+#START_DATE="1997-01-01"   # BIS speeches start around 1997
+START_DATE="2025-10-01"   # BIS speeches start around 1997
+#START_DATE=$(date +%Y-%m-%d)  # Today's date
 END_DATE=$(date +%Y-%m-%d)  # Today's date
 
 # Filtering (leave empty "" for all institutions)

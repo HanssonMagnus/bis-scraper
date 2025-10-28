@@ -101,9 +101,7 @@ The BIS Scraper is a Python package designed to download and process speeches fr
 
 - [ ] Add code quality CI checks (GitHub Actions)
 - [ ] Add API documentation generation
-- [ ] Implement parallel processing
-- [ ] Add text analysis capabilities
-- [ ] Create data export functionalities
+- [ ] Create data export functionalities for GCP
 - [ ] Enhance error handling and recovery
 - [ ] Implement resumable downloads
 

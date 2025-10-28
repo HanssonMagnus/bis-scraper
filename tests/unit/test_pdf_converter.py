@@ -172,6 +172,37 @@ class TestPdfConverter(unittest.TestCase):
         self.assertEqual(content, "New content")
 
     @patch("textract.process")
+    def test_date_filtering_in_converter(self, mock_process) -> None:
+        """Test that date range filters limit which PDFs are converted."""
+        mock_process.return_value = b"Sample PDF content"
+
+        # Add an out-of-range file and an in-range file for ECB
+        (self.ecb_dir / "220201a.pdf").touch()  # 2022-02-01 out of Jan range
+
+        # Filter for exactly 2022-01-02
+        import datetime as _dt
+
+        converter = PdfConverter(
+            input_dir=self.input_dir,
+            output_dir=self.output_dir,
+            institutions=["European Central Bank"],
+            start_date=_dt.date(2022, 1, 2),
+            end_date=_dt.date(2022, 1, 2),
+        )
+
+        converter.convert_institution("european_central_bank")
+
+        ecb_output_dir = self.output_dir / "european_central_bank"
+        # Only 220102b.txt should exist
+        self.assertTrue((ecb_output_dir / "220102b.txt").exists())
+        self.assertFalse((ecb_output_dir / "220101a.txt").exists())
+        self.assertFalse((ecb_output_dir / "220201a.txt").exists())
+
+        result = converter.get_results()
+        self.assertEqual(result.successful, 1)
+        self.assertEqual(mock_process.call_count, 1)
+
+    @patch("textract.process")
     def test_converter_error_handling(self, mock_process) -> None:
         """Test handling of conversion errors."""
 

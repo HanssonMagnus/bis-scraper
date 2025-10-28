@@ -40,19 +40,29 @@ class TestCli(unittest.TestCase):
         self.assertIn("Starting BIS web scraping", result.output)
         self.assertIn("Scraping completed", result.output)
 
-    @patch("bis_scraper.converters.controller.convert_pdfs")
-    def test_convert_command(self, mock_convert_pdfs) -> None:
+    @patch("bis_scraper.converters.controller.convert_pdfs_dates")
+    def test_convert_command(self, mock_convert) -> None:
         """Test the convert command."""
         # Set up the mock to return a simple result
         from bis_scraper.models import ConversionResult
 
-        mock_convert_pdfs.return_value = ConversionResult(
+        mock_convert.return_value = ConversionResult(
             successful=5, skipped=2, failed=1
         )
 
         # Test with verbose and institution
         result = self.runner.invoke(
-            main, ["--verbose", "convert", "--institutions", "European Central Bank"]
+            main,
+            [
+                "--verbose",
+                "convert",
+                "--institutions",
+                "European Central Bank",
+                "--start-date",
+                "2022-01-01",
+                "--end-date",
+                "2022-01-02",
+            ],
         )
 
         self.assertEqual(result.exit_code, 0)

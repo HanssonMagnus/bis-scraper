@@ -3,6 +3,7 @@
 import logging
 from pathlib import Path
 from typing import List, Optional
+import datetime
 
 import textract  # type: ignore
 
@@ -24,6 +25,8 @@ class PdfConverter:
         institutions: Optional[List[str]] = None,
         force_convert: bool = False,
         limit: Optional[int] = None,
+        start_date: Optional[datetime.date] = None,
+        end_date: Optional[datetime.date] = None,
     ):
         """Initialize the PDF converter.
 
@@ -33,6 +36,8 @@ class PdfConverter:
             institutions: List of institutions to convert (None = all)
             force_convert: Whether to re-convert files that already exist
             limit: Maximum number of files to convert per institution
+            start_date: Convert only files with date >= this date
+            end_date: Convert only files with date <= this date
         """
         self.input_dir = input_dir
         self.output_dir = output_dir
@@ -45,6 +50,8 @@ class PdfConverter:
         self.force_convert = force_convert
         self.limit = limit
         self.result = ConversionResult()
+        self.start_date: Optional[datetime.date] = start_date
+        self.end_date: Optional[datetime.date] = end_date
 
         # Create output directory
         create_directory(self.output_dir)
@@ -59,12 +66,13 @@ class PdfConverter:
         normalized_institution = normalize_institution_name(institution)
 
         # Skip if not in the list of required institutions
-        if (
-            self.institutions is not None
-            and normalized_institution not in self.institutions
-        ):
-            logger.debug(f"Skipping institution {institution} (not in required list)")
-            return
+        if self.institutions is not None:
+            allowed_institutions = set(self.institutions)
+            if normalized_institution not in allowed_institutions:
+                logger.debug(
+                    f"Skipping institution {institution} (not in required list)"
+                )
+                return
 
         # Check if institution directory exists in input
         inst_input_dir = self.input_dir / normalized_institution
@@ -79,6 +87,23 @@ class PdfConverter:
         # Process all PDFs in the institution directory - using new filename format
         pdf_files = list(inst_input_dir.glob("*.pdf"))
 
+        # Optional date filtering based on filename date code
+        if self.start_date is not None or self.end_date is not None:
+            filtered_pdf_files = []
+            for pdf_file in pdf_files:
+                file_code = pdf_file.stem
+                try:
+                    date_obj, _ = parse_date_code(file_code)
+                except Exception:
+                    # Skip files with unexpected naming
+                    continue
+                if self.start_date is not None and date_obj < self.start_date:
+                    continue
+                if self.end_date is not None and date_obj > self.end_date:
+                    continue
+                filtered_pdf_files.append(pdf_file)
+            pdf_files = filtered_pdf_files
+
         # Apply limit if specified
         if self.limit is not None and self.limit > 0:
             logger.info(
@@ -89,7 +114,7 @@ class PdfConverter:
         for pdf_file in pdf_files:
             # Process each file, catching exceptions to allow processing to continue
             try:
-                self._convert_pdf(pdf_file, inst_output_dir, normalized_institution)
+                self._convert_pdf(pdf_file, inst_output_dir)
             except Exception as e:
                 # Log error and continue with the next file
                 file_code = pdf_file.stem
@@ -97,20 +122,19 @@ class PdfConverter:
                 self.result.failed += 1
                 self.result.errors[file_code] = str(e)
 
-    def _convert_pdf(self, pdf_path: Path, output_dir: Path, institution: str) -> None:
+    def _convert_pdf(self, pdf_path: Path, output_dir: Path) -> None:
         """Convert a single PDF file to text.
 
         Args:
             pdf_path: Path to PDF file
             output_dir: Directory to save text file
-            institution: Institution name
         """
         # Extract file code (e.g., "220101a") from filename (now just the stem without extension)
         file_code = pdf_path.stem
 
         try:
-            # Parse date from file code
-            date_obj, letter_code = parse_date_code(file_code)
+            # Validate filename by parsing date code
+            parse_date_code(file_code)
 
             # Create output filename matching the input filename but with .txt extension
             txt_filename = f"{file_code}.txt"

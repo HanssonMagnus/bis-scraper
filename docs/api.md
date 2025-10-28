@@ -82,6 +82,26 @@ Returns a `ConversionResult` object with the following attributes:
 - `failed`: Number of PDFs that failed to convert
 - `errors`: Dictionary mapping file codes to error messages
 
+### `convert_pdfs_dates()`
+
+Convert PDFs with an optional inclusive date range filter.
+
+```python
+from bis_scraper.converters.controller import convert_pdfs_dates
+from pathlib import Path
+import datetime
+
+result = convert_pdfs_dates(
+    data_dir=Path("data"),
+    log_dir=Path("logs"),
+    start_date=datetime.datetime(2020, 1, 1),
+    end_date=datetime.datetime(2020, 1, 31),
+    institutions=["European Central Bank"],
+    force=False,
+    limit=None,
+)
+```
+
 ### `PdfConverter` Class
 
 Low-level class for converting PDFs to text.
@@ -95,7 +115,9 @@ converter = PdfConverter(
     output_dir: Path,           # Directory to save text files
     institutions: list[str],    # List of institutions to convert (None = all)
     force_convert: bool,        # Whether to re-convert existing files
-    limit: int                  # Maximum number of files to convert per institution
+    limit: int,                 # Maximum number of files to convert per institution
+    start_date: datetime.date,  # Optional inclusive start date filter
+    end_date: datetime.date,    # Optional inclusive end date filter
 )
 
 # Convert files for a specific institution

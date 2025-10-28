@@ -101,6 +101,12 @@ Convert only specific institutions:
 bis-scraper convert --institutions "European Central Bank"
 ```
 
+Convert only a specific date range (inclusive):
+
+```bash
+bis-scraper convert --start-date 2020-01-01 --end-date 2020-01-31
+```
+
 #### Run Both Steps
 
 Run both scraping and conversion in one command:
@@ -108,6 +114,25 @@ Run both scraping and conversion in one command:
 ```bash
 bis-scraper run-all --start-date 2020-01-01 --end-date 2020-01-31
 ```
+
+Note: The run-all command forwards the same date range to conversion, so only PDFs in that range are converted.
+
+#### Cache Management
+
+The scraper uses an intelligent date-based cache to avoid re-checking dates that have already been processed:
+
+```bash
+# Show information about the cache
+bis-scraper show-cache-info
+
+# Clear the cache to force re-checking all dates
+bis-scraper clear-cache
+```
+
+The date cache significantly improves performance for repeated runs by:
+- Skipping dates that have already been fully checked
+- Avoiding unnecessary HTTP requests for dates with no speeches
+- Maintaining separate cache entries for filtered institution searches
 
 #### Helper Scripts
 
@@ -131,7 +156,7 @@ See [Scripts README](scripts/README.md) for more details.
 from pathlib import Path
 import datetime
 from bis_scraper.scrapers.controller import scrape_bis
-from bis_scraper.converters.controller import convert_pdfs
+from bis_scraper.converters.controller import convert_pdfs_dates
 
 # Download speeches
 result = scrape_bis(
@@ -144,10 +169,12 @@ result = scrape_bis(
     limit=None
 )
 
-# Convert to text
-convert_result = convert_pdfs(
+# Convert to text (filtering to the same date range)
+convert_result = convert_pdfs_dates(
     data_dir=Path("data"),
     log_dir=Path("logs"),
+    start_date=datetime.datetime(2020, 1, 1),
+    end_date=datetime.datetime(2020, 1, 31),
     institutions=["European Central Bank"],
     force=False,
     limit=None

@@ -4,6 +4,7 @@ import logging
 import time
 from pathlib import Path
 from typing import Optional, Tuple
+import datetime
 
 from bis_scraper.converters.pdf_converter import PdfConverter
 from bis_scraper.models import ConversionResult
@@ -33,6 +34,40 @@ def convert_pdfs(
     Returns:
         ConversionResult with statistics
     """
+    return convert_pdfs_dates(
+        data_dir=data_dir,
+        log_dir=log_dir,
+        start_date=None,
+        end_date=None,
+        institutions=institutions,
+        force=force,
+        limit=limit,
+    )
+
+
+def convert_pdfs_dates(
+    data_dir: Path,
+    log_dir: Path,
+    start_date: Optional[datetime.datetime] = None,
+    end_date: Optional[datetime.datetime] = None,
+    institutions: Optional[Tuple[str, ...]] = None,
+    force: bool = False,
+    limit: Optional[int] = None,
+) -> ConversionResult:
+    """Convert PDF speeches to text format with optional date filtering.
+
+    Args:
+        data_dir: Base directory for data storage
+        log_dir: Directory for log files
+        start_date: Start date (inclusive) for filtering
+        end_date: End date (inclusive) for filtering
+        institutions: Specific institutions to convert (default: all)
+        force: Whether to force re-convert existing files
+        limit: Maximum number of files to convert per institution
+
+    Returns:
+        ConversionResult with statistics
+    """
     start_time = time.time()
 
     # Set up input and output directories
@@ -55,6 +90,10 @@ def convert_pdfs(
         [normalize_institution_name(i) for i in institutions] if institutions else None
     )
 
+    # Convert datetime to date for filtering
+    start_date_obj = start_date.date() if start_date else None
+    end_date_obj = end_date.date() if end_date else None
+
     converter = PdfConverter(
         input_dir=input_dir,
         output_dir=output_dir,
@@ -62,6 +101,9 @@ def convert_pdfs(
         force_convert=force,
         limit=limit,
     )
+    # Apply optional date filters
+    converter.start_date = start_date_obj
+    converter.end_date = end_date_obj
 
     # Process each institution
     for institution in available_institutions:

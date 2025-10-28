@@ -14,6 +14,7 @@ from typing import Optional, Tuple
 import click
 
 from bis_scraper import __version__
+from bis_scraper.utils.constants import RAW_DATA_DIR
 
 
 @click.group()
@@ -148,6 +149,16 @@ def scrape(
 
 @main.command()
 @click.option(
+    "--start-date",
+    type=click.DateTime(formats=["%Y-%m-%d"]),
+    help="Start date for conversion (format: YYYY-MM-DD)",
+)
+@click.option(
+    "--end-date",
+    type=click.DateTime(formats=["%Y-%m-%d"]),
+    help="End date for conversion (format: YYYY-MM-DD)",
+)
+@click.option(
     "--institutions",
     "-i",
     multiple=True,
@@ -168,21 +179,26 @@ def scrape(
 @click.pass_context
 def convert(
     ctx: click.Context,
+    start_date: Optional[click.DateTime],
+    end_date: Optional[click.DateTime],
     institutions: Tuple[str, ...],
     force: bool,
     limit: Optional[int],
 ) -> None:
     """Convert PDF speeches to text format."""
-    from bis_scraper.converters.controller import convert_pdfs
+    # Import inside function to avoid CLI import-time side effects
+    from bis_scraper.converters.controller import convert_pdfs_dates
 
     data_dir = ctx.obj["data_dir"]
     log_dir = ctx.obj["log_dir"]
 
     click.echo("Starting PDF to text conversion...")
     click.echo(f"Data directory: {data_dir.absolute()}")
-    convert_pdfs(
+    convert_pdfs_dates(
         data_dir=data_dir,
         log_dir=log_dir,
+        start_date=start_date,
+        end_date=end_date,
         institutions=institutions if institutions else None,
         force=force,
         limit=limit,
@@ -237,12 +253,92 @@ def run_all(
         force=force,
         limit=limit,
     )
+    # Call convert with the same date range
     ctx.invoke(
         convert,
+        start_date=start_date,
+        end_date=end_date,
         institutions=institutions,
         force=force,
         limit=limit,
     )
+
+
+@main.command()
+@click.pass_context
+def clear_cache(ctx: click.Context) -> None:
+    """Clear the date cache to force re-checking of all dates."""
+    data_dir = ctx.obj["data_dir"]
+    cache_file = data_dir / RAW_DATA_DIR / ".bis_scraper_date_cache.json"
+
+    if cache_file.exists():
+        try:
+            # Read cache to show info
+            import json
+
+            with open(cache_file, "r") as f:
+                cache_data = json.load(f)
+                num_dates = len(cache_data.get("dates", {}))
+
+            # Confirm with user
+            if click.confirm(f"Clear date cache containing {num_dates} checked dates?"):
+                cache_file.unlink()
+                click.echo(f"✅ Date cache cleared ({num_dates} dates removed)")
+            else:
+                click.echo("❌ Cache clearing cancelled")
+        except Exception as e:
+            click.echo(f"Error reading cache file: {e}", err=True)
+            if click.confirm("Delete the cache file anyway?"):
+                cache_file.unlink()
+                click.echo("✅ Cache file deleted")
+    else:
+        click.echo("No date cache found. Nothing to clear.")
+
+
+@main.command()
+@click.pass_context
+def show_cache_info(ctx: click.Context) -> None:
+    """Show information about the date cache."""
+    data_dir = ctx.obj["data_dir"]
+    cache_file = data_dir / RAW_DATA_DIR / ".bis_scraper_date_cache.json"
+
+    if not cache_file.exists():
+        click.echo("No date cache found.")
+        return
+
+    try:
+        import json
+
+        with open(cache_file, "r") as f:
+            cache_data = json.load(f)
+
+        dates = cache_data.get("dates", {})
+        updated = cache_data.get("updated", "Unknown")
+
+        click.echo("Date cache information:")
+        click.echo(f"  Location: {cache_file}")
+        click.echo(f"  Last updated: {updated}")
+        click.echo(f"  Total cached dates: {len(dates)}")
+
+        # Show some statistics
+        dates_with_speeches = sum(
+            1 for d in dates.values() if d.get("had_speeches", False)
+        )
+        total_files = sum(d.get("files_found", 0) for d in dates.values())
+
+        click.echo(f"  Dates with speeches: {dates_with_speeches}")
+        click.echo(f"  Dates without speeches: {len(dates) - dates_with_speeches}")
+        click.echo(f"  Total files found: {total_files}")
+
+        # Show date range if available
+        if dates:
+            date_keys = [k.split("|")[0] for k in dates.keys()]  # Extract date part
+            min_date = min(date_keys)
+            max_date = max(date_keys)
+            click.echo(f"  Date range: {min_date} to {max_date}")
+
+    except Exception as e:
+        click.echo(f"Error reading cache file: {e}", err=True)
 
 
 if __name__ == "__main__":

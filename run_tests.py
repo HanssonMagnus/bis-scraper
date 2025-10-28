@@ -61,10 +61,19 @@ def run_tests(test_type: str = "all", verbose: bool = False) -> int:
     
     if test_type == "all":
         print("\nRunning CLI tests...")
-        cli_tests = loader.discover(start_dir=str(test_dir), pattern="test_cli.py")
-        cli_runner = unittest.TextTestRunner(verbosity=verbosity)
-        cli_result = cli_runner.run(cli_tests)
-        if not cli_result.wasSuccessful():
+        # Manually import CLI tests to avoid discover path import issues
+        project_root = Path(__file__).parent
+        sys.path.insert(0, str(project_root))
+        try:
+            from tests.test_cli import TestCli
+
+            cli_suite = unittest.TestLoader().loadTestsFromTestCase(TestCli)
+            cli_runner = unittest.TextTestRunner(verbosity=verbosity)
+            cli_result = cli_runner.run(cli_suite)
+            if not cli_result.wasSuccessful():
+                return 1
+        except ImportError as e:
+            print(f"Error importing CLI tests: {e}")
             return 1
     
     print("\nAll tests passed!")
