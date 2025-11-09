@@ -1,8 +1,8 @@
 """BIS Scraper - Download and process central bank speeches from the BIS website."""
 
-from importlib.metadata import version, PackageNotFoundError
-from pathlib import Path
 import re
+from importlib.metadata import PackageNotFoundError, version
+from pathlib import Path
 
 try:
     __version__ = version("bis_scraper")
