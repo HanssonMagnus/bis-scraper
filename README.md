@@ -32,7 +32,9 @@ Built with the UNIX philosophy: do one thing well. This package focuses solely o
 
 ## Installation
 
-### From PyPI (recommended)
+### From PyPI (Coming Soon)
+
+The package will be available on PyPI soon. For now, please install from source.
 
 ```bash
 pip install bis-scraper
