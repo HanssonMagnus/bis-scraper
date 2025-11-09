@@ -154,7 +154,15 @@ class PdfConverter:
             # Extract text from PDF
             logger.debug(f"Converting {pdf_path}")
             text = textract.process(str(pdf_path))
-            text_str = text.decode("utf-8")
+
+            # Handle different return types from textract
+            if text is None:
+                raise ValueError(f"textract returned None for {pdf_path}")
+            elif isinstance(text, bytes):
+                text_str = text.decode("utf-8")
+            else:
+                # textract may return a string directly
+                text_str = str(text)
 
             # Save text to file
             with open(txt_path, "w", encoding="utf-8") as f:
@@ -172,8 +180,8 @@ class PdfConverter:
             print(f"Error: {error_message}")  # Print to stdout for CLI feedback
             self.result.failed += 1
             self.result.errors[file_code] = str(e)
-            # Re-raise the exception to be caught by the calling function
-            raise
+            # Don't re-raise - let convert_institution handle continuation
+            return
 
     def get_results(self) -> ConversionResult:
         """Get the conversion results.
