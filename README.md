@@ -367,6 +367,24 @@ print("\nSpeeches with most 'inflation' mentions:")
 print(results_df.sort_values('inflation', ascending=False)[['file_code', 'inflation']].head())
 ```
 
+## Known Limitations
+
+### PDF Text Conversion
+
+Some PDFs (approximately 8%) may fail to convert to text due to encoding issues in the source PDF files. This occurs when PDFs use non-standard font encodings that the text extraction library cannot process.
+
+**What happens:**
+- The PDF is downloaded successfully
+- Text conversion fails with an encoding error
+- The PDF file remains available for manual processing
+
+**If you encounter this issue:**
+- The PDF file is still available in the `pdfs/` directory
+- You can open it directly in a PDF viewer
+- For text extraction, you may need to use OCR software or contact the source institution for alternative formats
+
+**Note:** This is a limitation of the source PDF files, not a bug in this package. The package handles these errors gracefully and continues processing other files.
+
 ## Development
 
 ### Setting Up Development Environment
