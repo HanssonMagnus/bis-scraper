@@ -213,6 +213,80 @@ result.failed = 2
 result.errors = {"220101a": "Error message"}
 ```
 
+## Cloud Integration
+
+The package saves files to a configurable directory, making it easy to integrate with cloud storage. Here's a simple example for Google Cloud Platform (GCP) with Google Cloud Storage (GCS):
+
+### GCP Example: Scrape and Upload to GCS
+
+```python
+import tempfile
+from pathlib import Path
+import datetime
+from bis_scraper.scrapers.controller import scrape_bis
+from bis_scraper.converters.controller import convert_pdfs_dates
+from google.cloud import storage
+
+def scrape_and_upload_to_gcs(
+    bucket_name: str,
+    start_date: datetime.datetime,
+    end_date: datetime.datetime,
+) -> None:
+    """Scrape speeches and upload to GCS."""
+    # Use temporary directory for local storage
+    with tempfile.TemporaryDirectory() as tmpdir:
+        data_dir = Path(tmpdir)
+        log_dir = Path(tmpdir) / "logs"
+        
+        # Scrape speeches (saves to tmpdir)
+        scrape_result = scrape_bis(
+            data_dir=data_dir,
+            log_dir=log_dir,
+            start_date=start_date,
+            end_date=end_date,
+        )
+        
+        # Convert PDFs to text (saves to tmpdir)
+        convert_result = convert_pdfs_dates(
+            data_dir=data_dir,
+            log_dir=log_dir,
+            start_date=start_date,
+            end_date=end_date,
+        )
+        
+        # Upload to GCS
+        client = storage.Client()
+        bucket = client.bucket(bucket_name)
+        
+        # Upload all PDFs and text files
+        for file_path in data_dir.rglob("*"):
+            if file_path.is_file():
+                # Preserve directory structure in GCS
+                blob_path = file_path.relative_to(data_dir)
+                blob = bucket.blob(str(blob_path))
+                blob.upload_from_filename(str(file_path))
+        
+        print(f"Uploaded {scrape_result.downloaded} speeches to gs://{bucket_name}/")
+
+# Usage
+scrape_and_upload_to_gcs(
+    bucket_name="my-bis-speeches-bucket",
+    start_date=datetime.datetime(2024, 1, 1),
+    end_date=datetime.datetime(2024, 1, 31),
+)
+```
+
+### Important Notes
+
+- **Caching**: The date cache file (`.bis_scraper_date_cache.json`) is saved in the `data_dir`. For cloud deployments, you may want to:
+  - Upload the cache file to GCS after each run
+  - Download it before each run to preserve cache across executions
+  - Or use a persistent volume/mount in Cloud Run
+
+- **Temporary Storage**: The example uses `tempfile.TemporaryDirectory()` which is cleaned up automatically. For Cloud Run, you can also use `/tmp` or a mounted volume.
+
+- **Error Handling**: Add appropriate error handling and retry logic for production use.
+
 ## Command-Line Interface (CLI)
 
 The package also provides a command-line interface that can be used in your terminal after installation:

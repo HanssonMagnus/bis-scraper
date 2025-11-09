@@ -2,16 +2,18 @@
 
 [![Tests](https://github.com/HanssonMagnus/bis-scraper/actions/workflows/tests.yml/badge.svg)](https://github.com/HanssonMagnus/bis-scraper/actions/workflows/tests.yml)
 [![Python Versions](https://img.shields.io/badge/python-3.9%20|%203.10%20|%203.11-blue)](https://github.com/HanssonMagnus/bis-scraper)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1)](https://pycqa.github.io/isort/)
 [![Type Checking: mypy](https://img.shields.io/badge/type%20checking-mypy-blue)](https://github.com/python/mypy)
 
-A Python package for downloading and processing central bank speeches from the Bank for International Settlements (BIS) website.
+An open source Python package for downloading and processing central bank speeches from the Bank for International Settlements (BIS) website.
 
 ## Overview
 
 BIS Scraper allows you to download speeches from various central banks worldwide that are collected on the BIS website. It organizes these speeches by institution, downloads the PDFs, and can convert them to text format for further analysis.
+
+Built with the UNIX philosophy: do one thing well. This package focuses solely on downloading and organizing speeches. You can run it locally or integrate it into any cloud architecture—the package saves files to a configurable directory, and you handle storage however you need (local filesystem, cloud storage, etc.).
 
 ## Features
 
@@ -510,7 +512,7 @@ Before submitting your PR, please make sure:
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the GNU General Public License v3.0 - see the LICENSE file for details.
 
 ## Acknowledgments
 
