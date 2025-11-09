@@ -28,7 +28,6 @@ Built with the UNIX philosophy: do one thing well. This package focuses solely o
 
 - [API Documentation](docs/api.md): Detailed information about the package's APIs
 - [Test Coverage](docs/test_coverage.md): Testing approach and requirements
-- [Project Plan](temp/project_plan.md): Current development status and roadmap
 
 ## Installation
 
