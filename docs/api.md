@@ -215,6 +215,142 @@ result.failed = 2
 result.errors = {"220101a": "Error message"}
 ```
 
+## Caching
+
+The package uses multiple caching mechanisms to avoid unnecessary work and improve efficiency:
+
+### Date Cache
+
+The scraper maintains a **date cache** (`.bis_scraper_date_cache.json`) that stores which dates have been fully checked. This prevents re-checking dates that had no speeches or were already processed.
+
+**How it works:**
+- Before scraping a date, the scraper checks if it's in the cache
+- If cached, the date is skipped entirely (no network requests)
+- After checking a date, it's added to the cache
+- Cache is saved to disk in `data_dir/pdfs/.bis_scraper_date_cache.json`
+
+**Benefits:**
+- Prevents checking thousands of empty dates
+- Very fast: cache lookup is instant (in-memory)
+- Small file size: typically a few KB even for years of data
+
+### File Existence Cache
+
+The scraper builds an in-memory cache of existing PDF files by scanning local directories. This prevents re-downloading files that already exist.
+
+**How it works:**
+- On initialization, scans all institution directories for existing PDFs
+- Stores file codes (e.g., "220101a") in an in-memory set
+- Before downloading, checks if file code exists in cache
+- Skips network request if file already exists
+
+**Benefits:**
+- Prevents unnecessary downloads
+- Fast: in-memory lookup is instant
+- Efficient: only scans directories once at startup
+
+### Conversion Cache
+
+The converter checks if a text file already exists before converting a PDF.
+
+**How it works:**
+- Before converting a PDF, checks if corresponding `.txt` file exists
+- If text file exists, conversion is skipped
+- Simple filesystem check: `txt_path.exists()`
+
+**Benefits:**
+- Prevents re-converting PDFs
+- Fast: simple file existence check
+- Efficient: avoids expensive PDF processing
+
+### Optimal Strategy for Cloud Deployments
+
+For cloud deployments (e.g., GCP Cloud Run), use an **incremental daily scraping strategy**:
+
+#### 1. Initial Setup (One-Time)
+
+Run a full historical scrape to populate all data:
+
+```python
+# Run once to populate all historical data
+scrape_bis(
+    data_dir=data_dir,
+    log_dir=log_dir,
+    start_date=datetime.datetime(1997, 1, 1),  # BIS speeches start around 1997
+    end_date=datetime.datetime.today(),
+)
+```
+
+This will:
+- Download all historical speeches
+- Build a complete date cache
+- Take time, but only needs to run once
+
+#### 2. Daily Runs (Incremental)
+
+Run daily to scrape only the current day:
+
+```python
+# Run daily - only scrape today's date
+today = datetime.date.today()
+scrape_bis(
+    data_dir=data_dir,
+    log_dir=log_dir,
+    start_date=datetime.datetime.combine(today, datetime.time.min),
+    end_date=datetime.datetime.combine(today, datetime.time.max),
+)
+```
+
+This will:
+- Scrape only 1 date (today)
+- Be very fast: typically 1-5 seconds
+- Download only new speeches
+- Be highly efficient
+
+**Why this is optimal:**
+
+| Strategy | Dates Checked | Cache Lookups | Network Requests | Time |
+|----------|---------------|---------------|------------------|------|
+| Daily (today only) | 1 | 1 | ~1-5 | ~1-5 seconds |
+| Daily (full range) | ~10,000 | ~10,000 | ~1-5 | ~10-30 seconds |
+
+Even with caching, checking 10,000 dates adds overhead:
+- Date cache file download/upload
+- Iterating through date range
+- In-memory cache lookups
+- Logging/progress reporting
+
+**Recommendation:** Use daily incremental runs for optimal efficiency in cloud environments.
+
+### Cache Persistence in Cloud
+
+For cloud deployments, persist the date cache file:
+
+```python
+from google.cloud import storage
+from pathlib import Path
+
+def load_cache_from_gcs(bucket_name: str, data_dir: Path) -> None:
+    """Download date cache from GCS before scraping."""
+    client = storage.Client()
+    bucket = client.bucket(bucket_name)
+    cache_blob = bucket.blob("pdfs/.bis_scraper_date_cache.json")
+
+    cache_path = data_dir / "pdfs" / ".bis_scraper_date_cache.json"
+    if cache_blob.exists():
+        cache_blob.download_to_filename(cache_path)
+
+def save_cache_to_gcs(bucket_name: str, data_dir: Path) -> None:
+    """Upload date cache to GCS after scraping."""
+    client = storage.Client()
+    bucket = client.bucket(bucket_name)
+    cache_path = data_dir / "pdfs" / ".bis_scraper_date_cache.json"
+
+    if cache_path.exists():
+        cache_blob = bucket.blob("pdfs/.bis_scraper_date_cache.json")
+        cache_blob.upload_from_filename(cache_path)
+```
+
 ## Cloud Integration
 
 The package saves files to a configurable directory, making it easy to integrate with cloud storage. Here's a simple example for Google Cloud Platform (GCP) with Google Cloud Storage (GCS):
@@ -280,14 +416,13 @@ scrape_and_upload_to_gcs(
 
 ### Important Notes
 
-- **Caching**: The date cache file (`.bis_scraper_date_cache.json`) is saved in the `data_dir`. For cloud deployments, you may want to:
-  - Upload the cache file to GCS after each run
-  - Download it before each run to preserve cache across executions
-  - Or use a persistent volume/mount in Cloud Run
+- **Caching**: See the [Caching](#caching) section above for details on how caching works and optimal strategies for cloud deployments. For cloud deployments, persist the date cache file (`.bis_scraper_date_cache.json`) by uploading it to GCS after each run and downloading it before each run.
 
 - **Temporary Storage**: The example uses `tempfile.TemporaryDirectory()` which is cleaned up automatically. For Cloud Run, you can also use `/tmp` or a mounted volume.
 
 - **Error Handling**: Add appropriate error handling and retry logic for production use.
+
+- **Daily Runs**: For optimal efficiency, use daily incremental runs (scrape only today's date) rather than running the full date range daily. See [Caching](#caching) for details.
 
 ## Known Limitations
 
