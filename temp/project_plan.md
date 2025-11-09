@@ -131,4 +131,4 @@ The BIS Scraper is a Python package designed to download and process speeches fr
 
 The BIS Scraper project has successfully transitioned from its original implementation to a modern, well-structured Python package. The current focus is on stabilizing the core functionality and ensuring all original features are preserved with improved implementation.
 
-The next steps involve comprehensive testing, detailed documentation, and incremental feature additions to enhance the package's capabilities for central bank speech analysis. 
+The next steps involve comprehensive testing, detailed documentation, and incremental feature additions to enhance the package's capabilities for central bank speech analysis.

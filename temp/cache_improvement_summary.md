@@ -74,4 +74,4 @@ bis-scraper scrape --force --start-date 2020-01-01 --end-date 2020-12-31
 ## Backward Compatibility
 - Fully backward compatible - existing scripts work without changes
 - Cache is created automatically on first run
-- Old installations can be upgraded without issues 
+- Old installations can be upgraded without issues

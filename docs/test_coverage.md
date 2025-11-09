@@ -71,4 +71,4 @@ When adding new features or modifying existing code, please ensure:
 4. **Tests use mocks appropriately** to avoid external dependencies
 5. **Integration impacts are tested** when changing core components
 
-The project uses GitHub Actions to automatically run tests on pull requests, ensuring that all contributions maintain the expected quality standards. 
+The project uses GitHub Actions to automatically run tests on pull requests, ensuring that all contributions maintain the expected quality standards.

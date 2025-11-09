@@ -22,4 +22,4 @@ pip install -e .
 
 echo "=== Installation complete ==="
 echo "To activate the environment, run: source .venv/bin/activate"
-echo "To use the package, run: bis-scraper --help" 
+echo "To use the package, run: bis-scraper --help"
