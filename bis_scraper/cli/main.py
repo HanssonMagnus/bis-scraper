@@ -179,8 +179,8 @@ def scrape(
 @click.pass_context
 def convert(
     ctx: click.Context,
-    start_date: Optional[click.DateTime],
-    end_date: Optional[click.DateTime],
+    start_date: Optional[datetime.datetime],
+    end_date: Optional[datetime.datetime],
     institutions: Tuple[str, ...],
     force: bool,
     limit: Optional[int],
@@ -238,8 +238,8 @@ def convert(
 @click.pass_context
 def run_all(
     ctx: click.Context,
-    start_date: Optional[click.DateTime],
-    end_date: Optional[click.DateTime],
+    start_date: Optional[datetime.datetime],
+    end_date: Optional[datetime.datetime],
     institutions: tuple[str, ...],
     force: bool,
     limit: Optional[int],

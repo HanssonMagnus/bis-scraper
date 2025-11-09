@@ -39,7 +39,7 @@ if check_directory "$LOG_DIR"; then
     echo "Log files found in $LOG_DIR"
     log_count=$(find "$LOG_DIR" -type f -name "*.log" | wc -l)
     echo "Number of log files: $log_count"
-    
+
     # Find the most recent log file
     most_recent=$(find "$LOG_DIR" -type f -name "*.log" -printf "%T@ %p\n" | sort -n | tail -1 | cut -f2 -d' ')
     if [ ! -z "$most_recent" ]; then
@@ -56,11 +56,11 @@ fi
 # Analyze PDF data
 if check_directory "$PDF_DIR"; then
     echo -e "\n======= PDF files analysis ======="
-    
+
     # Total PDFs
     total_pdfs=$(find "$PDF_DIR" -type f -name "*.pdf" | wc -l)
     echo "Total PDF files: $total_pdfs"
-    
+
     # Count by institution
     echo -e "\nPDF files by institution:"
     echo "---"
@@ -72,7 +72,7 @@ if check_directory "$PDF_DIR"; then
         fi
     done
     echo "---"
-    
+
     # Count by year (based on filename pattern YYMMDD[a-z].pdf)
     echo -e "\nPDF files by year:"
     echo "---"
@@ -95,11 +95,11 @@ fi
 # Analyze TXT data
 if check_directory "$TXT_DIR"; then
     echo -e "\n======= Text files analysis ======="
-    
+
     # Total TXTs
     total_txts=$(find "$TXT_DIR" -type f -name "*.txt" | wc -l)
     echo "Total TXT files: $total_txts"
-    
+
     # Count by institution
     echo -e "\nTXT files by institution:"
     echo "---"
@@ -111,7 +111,7 @@ if check_directory "$TXT_DIR"; then
         fi
     done
     echo "---"
-    
+
     # Conversion success rate
     if [ $total_pdfs -gt 0 ]; then
         success_rate=$(echo "scale=2; $total_txts * 100 / $total_pdfs" | bc)
@@ -123,4 +123,4 @@ fi
 
 echo -e "\n========================================================"
 echo "Analysis complete"
-echo "========================================================" 
+echo "========================================================"

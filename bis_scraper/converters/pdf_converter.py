@@ -1,9 +1,9 @@
 """PDF to text converter implementation."""
 
+import datetime
 import logging
 from pathlib import Path
 from typing import List, Optional
-import datetime
 
 import textract  # type: ignore
 

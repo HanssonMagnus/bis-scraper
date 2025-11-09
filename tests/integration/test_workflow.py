@@ -9,7 +9,7 @@ from unittest.mock import patch
 
 import responses
 
-from bis_scraper.converters.controller import convert_pdfs, convert_pdfs_dates
+from bis_scraper.converters.controller import convert_pdfs_dates
 from bis_scraper.scrapers.controller import scrape_bis
 from bis_scraper.utils.constants import HTML_EXTENSION, PDF_EXTENSION, SPEECHES_URL
 

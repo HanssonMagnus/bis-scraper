@@ -127,4 +127,4 @@ convert_pdfs(
 2. **CI/CD Pipeline**: Set up GitHub Actions for automated testing
 3. **Documentation Site**: Consider generating API documentation with Sphinx
 4. **More Tests**: Add more comprehensive testing, especially integration tests
-5. **Performance Optimization**: Explore options for parallel processing 
+5. **Performance Optimization**: Explore options for parallel processing

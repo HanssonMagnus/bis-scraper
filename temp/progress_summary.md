@@ -70,4 +70,4 @@ The BIS Scraper project has been successfully transformed from its original impl
 5. Extensive test coverage
 6. CI/CD integration
 
-These improvements make the package more maintainable, extensible, and user-friendly, providing a solid foundation for future enhancements. 
+These improvements make the package more maintainable, extensible, and user-friendly, providing a solid foundation for future enhancements.

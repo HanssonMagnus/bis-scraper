@@ -38,6 +38,7 @@ dev = [
     "responses>=0.22.0",
     "types-requests>=2.28.0",
     "types-beautifulsoup4>=4.8.0",
+    "pre-commit>=3.0.0",
 ]
 
 [project.urls]
@@ -83,4 +84,4 @@ ignore = []
 "bis_scraper/scrapers/**/*.py" = ["E501"]
 "bis_scraper/converters/**/*.py" = ["E501"]
 "bis_scraper/utils/**/*.py" = ["E501"]
-"bis_scraper/cli/**/*.py" = ["E501"] 
+"bis_scraper/cli/**/*.py" = ["E501"]

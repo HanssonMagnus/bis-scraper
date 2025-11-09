@@ -247,4 +247,4 @@ bis-scraper --help
 - `--force`: Force re-download or re-conversion
 - `--limit INTEGER`: Maximum number of speeches to process
 - `--data-dir DIRECTORY`: Base directory for data storage
-- `--log-dir DIRECTORY`: Directory for log files 
+- `--log-dir DIRECTORY`: Directory for log files

@@ -45,13 +45,13 @@ If no data directory is specified, the script will use the default (`$HOME/bis_f
    ```bash
    nano scripts/run_full_scrape.sh
    ```
-   
+
 2. **Run the scraping process**:
    ```bash
    cd scripts
    ./run_full_scrape.sh
    ```
-   
+
    For long-running jobs, consider using screen or tmux:
    ```bash
    screen -S bis_scraper
@@ -65,4 +65,4 @@ If no data directory is specified, the script will use the default (`$HOME/bis_f
    ```bash
    cd scripts
    ./analyze_results.sh
-   ``` 
+   ```
