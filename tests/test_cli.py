@@ -46,9 +46,7 @@ class TestCli(unittest.TestCase):
         # Set up the mock to return a simple result
         from bis_scraper.models import ConversionResult
 
-        mock_convert.return_value = ConversionResult(
-            successful=5, skipped=2, failed=1
-        )
+        mock_convert.return_value = ConversionResult(successful=5, skipped=2, failed=1)
 
         # Test with verbose and institution
         result = self.runner.invoke(

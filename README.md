@@ -321,30 +321,30 @@ def analyze_speeches(data_dir, institution, keywords):
     # Path to text files for the institution
     institution_dir = Path(data_dir) / "texts" / institution.lower().replace(" ", "_")
     results = []
-    
+
     # Process each text file
     for txt_file in glob.glob(f"{institution_dir}/*.txt"):
         file_code = os.path.basename(txt_file).split('.')[0]
-        
+
         with open(txt_file, 'r', encoding='utf-8') as f:
             text = f.read().lower()
-            
+
             # Count keywords
             word_counts = {}
             for keyword in keywords:
                 pattern = r'\b' + re.escape(keyword.lower()) + r'\b'
                 word_counts[keyword] = len(re.findall(pattern, text))
-            
+
             # Get total word count
             total_words = len(re.findall(r'\b\w+\b', text))
-            
+
             # Add to results
             results.append({
                 'file_code': file_code,
                 'total_words': total_words,
                 **word_counts
             })
-    
+
     # Convert to DataFrame for analysis
     df = pd.DataFrame(results)
     return df
@@ -433,6 +433,73 @@ mypy bis_scraper
 # Run linter
 ruff bis_scraper tests
 ```
+
+### Pre-commit Hooks
+
+This project uses [pre-commit](https://pre-commit.com/) hooks to automatically run the full CI pipeline locally before each commit. This ensures that all code quality checks pass before pushing to the repository.
+
+#### Installation
+
+First, install pre-commit (if not already installed). If you've installed the dev dependencies, pre-commit is already included:
+
+```bash
+# If you've installed dev dependencies, pre-commit is already available
+pip install -e ".[dev]"
+
+# Or install pre-commit separately
+pip install pre-commit
+```
+
+Then install the git hooks:
+
+```bash
+pre-commit install
+```
+
+This will set up the hooks to run automatically on every commit.
+
+#### Running Manually
+
+You can run all pre-commit hooks manually on all files:
+
+```bash
+pre-commit run --all-files
+```
+
+To run a specific hook:
+
+```bash
+pre-commit run <hook-id> --all-files
+```
+
+For example:
+```bash
+pre-commit run pytest --all-files
+pre-commit run mypy --all-files
+pre-commit run black --all-files
+```
+
+#### What the Hooks Do
+
+The pre-commit hooks run the same checks as the CI pipeline:
+
+1. **pytest** - Runs all tests
+2. **mypy** - Type checking on `bis_scraper` package
+3. **black** - Code formatting check
+4. **isort** - Import sorting check
+5. **ruff** - Linting
+
+If any hook fails, the commit will be blocked. Fix the issues and try committing again.
+
+#### Skipping Hooks (Not Recommended)
+
+If you need to skip hooks for a specific commit (not recommended), you can use:
+
+```bash
+git commit --no-verify
+```
+
+However, the CI pipeline will still run these checks, so it's better to fix issues locally.
 
 ## Contributing
 

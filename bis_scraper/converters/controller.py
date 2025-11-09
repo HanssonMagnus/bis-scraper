@@ -1,10 +1,10 @@
 """Controller module for PDF to text conversion operations."""
 
+import datetime
 import logging
 import time
 from pathlib import Path
 from typing import Optional, Tuple
-import datetime
 
 from bis_scraper.converters.pdf_converter import PdfConverter
 from bis_scraper.models import ConversionResult
