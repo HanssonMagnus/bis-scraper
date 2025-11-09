@@ -410,17 +410,7 @@ This project uses several tools to ensure code quality:
 - `mypy` for type checking
 - `ruff` for linting
 
-You can run all these checks using the provided script:
-
-```bash
-# Check code quality
-./check_code_quality.py
-
-# Fix issues automatically where possible
-./check_code_quality.py --fix
-```
-
-Or run each tool individually:
+The recommended way to run all these checks is using pre-commit hooks (see [Pre-commit Hooks](#pre-commit-hooks) section below). You can also run each tool individually:
 
 ```bash
 # Format code
