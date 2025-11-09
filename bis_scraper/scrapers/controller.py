@@ -8,6 +8,7 @@ from typing import Optional, Tuple
 
 from bis_scraper.models import ScrapingResult
 from bis_scraper.scrapers.bis_scraper import BisScraper
+from bis_scraper.scrapers.recategorize import recategorize_unknown_files
 from bis_scraper.utils.constants import RAW_DATA_DIR
 from bis_scraper.utils.file_utils import create_directory
 from bis_scraper.utils.institution_utils import normalize_institution_name
@@ -131,6 +132,12 @@ def scrape_bis(
 
     # Get results
     result = scraper.get_results()
+
+    # Re-categorize files from unknown folder if any exist
+    recategorized_count, remaining_unknown = recategorize_unknown_files(data_dir)
+    if recategorized_count > 0:
+        logger.info(f"Re-categorized {recategorized_count} file(s) from unknown folder")
+        print(f"Re-categorized {recategorized_count} file(s) from unknown folder")
 
     # Log summary
     elapsed_time = time.time() - start_time
