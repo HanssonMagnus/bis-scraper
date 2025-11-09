@@ -227,9 +227,7 @@ class TestPdfConverter(unittest.TestCase):
         # Check results
         result = converter.get_results()
         self.assertEqual(result.successful, 1)  # First file converted
-        # The PDF converter counts errors both in the converter's internal state
-        # and in the exception handler in convert_institution, resulting in 2 counts
-        self.assertEqual(result.failed, 2)  # Second file failed, counted in two places
+        self.assertEqual(result.failed, 1)  # Second file failed
         self.assertIn("220102b", result.errors)  # Error recorded
 
 

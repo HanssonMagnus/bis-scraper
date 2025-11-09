@@ -53,6 +53,7 @@ INSTITUTIONS: List[str] = [
     "Central Bank of Colombia",
     "Central Bank of Curaçao and Sint Maarten",
     "Central Bank of Cyprus",
+    "Central Bank of Eswatini",
     "Central Bank of Iceland",
     "Central Bank of Ireland",
     "Central Bank of Jordan",
@@ -196,6 +197,7 @@ INSTITUTION_ALIASES: Dict[str, List[str]] = {
     ],
     "central bank of norway": ["norges bank"],
     "bank of france": ["banque de france"],
+    "bank of portugal": ["banco de portugal"],
     "netherlands bank": ["nederlandsche bank"],
     "south african reserve bank": ["bank of south africa"],
     "hong kong monetary authority": ["hong kong monetary"],
@@ -209,4 +211,5 @@ INSTITUTION_ALIASES: Dict[str, List[str]] = {
     "central bank of the republic of turkey": ["bank of turkey"],
     "people's bank of china": ["bank of china"],
     "reserve bank of australia": ["australian reserve bank", "bank of australia"],
+    "saudi arabian monetary agency": ["saudi central bank"],
 }
