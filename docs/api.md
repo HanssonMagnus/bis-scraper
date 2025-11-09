@@ -237,7 +237,7 @@ def scrape_and_upload_to_gcs(
     with tempfile.TemporaryDirectory() as tmpdir:
         data_dir = Path(tmpdir)
         log_dir = Path(tmpdir) / "logs"
-        
+
         # Scrape speeches (saves to tmpdir)
         scrape_result = scrape_bis(
             data_dir=data_dir,
@@ -245,7 +245,7 @@ def scrape_and_upload_to_gcs(
             start_date=start_date,
             end_date=end_date,
         )
-        
+
         # Convert PDFs to text (saves to tmpdir)
         convert_result = convert_pdfs_dates(
             data_dir=data_dir,
@@ -253,11 +253,11 @@ def scrape_and_upload_to_gcs(
             start_date=start_date,
             end_date=end_date,
         )
-        
+
         # Upload to GCS
         client = storage.Client()
         bucket = client.bucket(bucket_name)
-        
+
         # Upload all PDFs and text files
         for file_path in data_dir.rglob("*"):
             if file_path.is_file():
@@ -265,7 +265,7 @@ def scrape_and_upload_to_gcs(
                 blob_path = file_path.relative_to(data_dir)
                 blob = bucket.blob(str(blob_path))
                 blob.upload_from_filename(str(file_path))
-        
+
         print(f"Uploaded {scrape_result.downloaded} speeches to gs://{bucket_name}/")
 
 # Usage

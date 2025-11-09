@@ -30,4 +30,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Error handling and logging
 
 [0.1.0]: https://github.com/HanssonMagnus/bis-scraper/releases/tag/v0.1.0
-
