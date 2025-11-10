@@ -57,6 +57,48 @@ scraper.scrape_date(date_obj)
 result = scraper.get_results()
 ```
 
+### `recategorize_unknown_files()`
+
+Re-categorize files from the `unknown/` folder using updated institution mappings.
+
+This function is useful when you've updated institution mappings in `constants.py` after files have already been downloaded. It moves files from the `unknown/` folder to their correct institution folders based on the updated mappings.
+
+```python
+from bis_scraper.scrapers.recategorize import recategorize_unknown_files
+from pathlib import Path
+
+recategorized_count, remaining_unknown = recategorize_unknown_files(
+    data_dir: Path  # Base directory for data storage
+)
+```
+
+**Returns:** A tuple of `(recategorized_count, remaining_unknown)`:
+- `recategorized_count`: Number of files successfully re-categorized
+- `remaining_unknown`: Number of files still remaining in the unknown folder
+
+**How it works:**
+1. Processes files with entries in `metadata.json` from the unknown folder
+2. Processes PDF files without metadata entries (fetches metadata from BIS website)
+3. Moves both PDFs and corresponding text files to correct institution folders
+4. Preserves structured metadata when moving files
+5. Updates `metadata.json` atomically after each successful move
+
+**Example:**
+
+```python
+from pathlib import Path
+from bis_scraper.scrapers.recategorize import recategorize_unknown_files
+
+# After updating constants.py with new institution mappings
+recategorized_count, remaining_unknown = recategorize_unknown_files(Path("data"))
+
+if recategorized_count > 0:
+    print(f"Re-categorized {recategorized_count} file(s) from unknown folder")
+
+if remaining_unknown > 0:
+    print(f"{remaining_unknown} file(s) still remain in unknown folder")
+```
+
 ## Conversion Components
 
 ### `convert_pdfs()`
@@ -362,6 +404,7 @@ import tempfile
 from pathlib import Path
 import datetime
 from bis_scraper.scrapers.controller import scrape_bis
+from bis_scraper.scrapers.recategorize import recategorize_unknown_files
 from bis_scraper.converters.controller import convert_pdfs_dates
 from google.cloud import storage
 
@@ -383,6 +426,11 @@ def scrape_and_upload_to_gcs(
             start_date=start_date,
             end_date=end_date,
         )
+
+        # Re-categorize files from unknown folder (if any)
+        recategorized_count, remaining_unknown = recategorize_unknown_files(data_dir)
+        if recategorized_count > 0:
+            print(f"Re-categorized {recategorized_count} file(s) from unknown folder")
 
         # Convert PDFs to text (saves to tmpdir)
         convert_result = convert_pdfs_dates(

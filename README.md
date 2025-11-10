@@ -110,15 +110,25 @@ Convert only a specific date range (inclusive):
 bis-scraper convert --start-date 2020-01-01 --end-date 2020-01-31
 ```
 
-#### Run Both Steps
+#### Re-categorize Unknown Files
 
-Run both scraping and conversion in one command:
+After scraping, some files may be placed in an `unknown/` folder if their institution couldn't be identified. If you've updated institution mappings in `constants.py`, you can re-categorize these files:
+
+```bash
+bis-scraper recategorize
+```
+
+This command moves files from the `unknown/` folder to their correct institution folders based on updated mappings. It processes both PDFs and text files together.
+
+#### Run All Steps
+
+Run scraping, recategorization, and conversion in one command:
 
 ```bash
 bis-scraper run-all --start-date 2020-01-01 --end-date 2020-01-31
 ```
 
-Note: The run-all command forwards the same date range to conversion, so only PDFs in that range are converted.
+Note: The `run-all` command runs scraping, then recategorization, then conversion. The date range is forwarded to conversion, so only PDFs in that range are converted.
 
 #### Cache Management
 
@@ -159,6 +169,7 @@ See [Scripts README](scripts/README.md) for more details.
 from pathlib import Path
 import datetime
 from bis_scraper.scrapers.controller import scrape_bis
+from bis_scraper.scrapers.recategorize import recategorize_unknown_files
 from bis_scraper.converters.controller import convert_pdfs_dates
 
 # Download speeches
@@ -171,6 +182,11 @@ result = scrape_bis(
     force=False,
     limit=None
 )
+
+# Re-categorize files from unknown folder (if any)
+recategorized_count, remaining_unknown = recategorize_unknown_files(Path("data"))
+if recategorized_count > 0:
+    print(f"Re-categorized {recategorized_count} file(s) from unknown folder")
 
 # Convert to text (filtering to the same date range)
 convert_result = convert_pdfs_dates(
@@ -195,6 +211,7 @@ import datetime
 import logging
 from pathlib import Path
 from bis_scraper.scrapers.controller import scrape_bis
+from bis_scraper.scrapers.recategorize import recategorize_unknown_files
 from bis_scraper.converters.controller import convert_pdfs
 from bis_scraper.utils.constants import INSTITUTIONS
 from bis_scraper.utils.institution_utils import get_all_institutions
@@ -238,6 +255,11 @@ scrape_result = scrape_bis(
     force=False,
     limit=10
 )
+
+# Re-categorize files from unknown folder (if any)
+recategorized_count, remaining_unknown = recategorize_unknown_files(data_dir)
+if recategorized_count > 0:
+    print(f"Re-categorized {recategorized_count} file(s) from unknown folder")
 
 # Convert all downloaded speeches
 convert_result = convert_pdfs(
