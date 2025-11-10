@@ -148,6 +148,38 @@ def scrape(
 
 
 @main.command()
+@click.pass_context
+def recategorize(ctx: click.Context) -> None:
+    """Re-categorize files from unknown folder using updated institution mappings.
+
+    This command moves files from the unknown folder to their correct institution
+    folders based on updated institution mappings in constants.py. Useful when
+    you've added new institution aliases or mappings.
+
+    The command processes both PDFs and text files, moving them together to
+    maintain consistency.
+    """
+    from bis_scraper.scrapers.recategorize import recategorize_unknown_files
+
+    data_dir = ctx.obj["data_dir"]
+
+    click.echo("Re-categorizing files from unknown folder...")
+    click.echo(f"Data directory: {data_dir.absolute()}")
+
+    recategorized_count, remaining_unknown = recategorize_unknown_files(data_dir)
+
+    if recategorized_count > 0:
+        click.echo(f"Re-categorized {recategorized_count} file(s) from unknown folder")
+    else:
+        click.echo("No files found to re-categorize")
+
+    if remaining_unknown > 0:
+        click.echo(f"{remaining_unknown} file(s) still remain in unknown folder")
+
+    click.echo("Re-categorization completed!")
+
+
+@main.command()
 @click.option(
     "--start-date",
     type=click.DateTime(formats=["%Y-%m-%d"]),
@@ -244,7 +276,7 @@ def run_all(
     force: bool,
     limit: Optional[int],
 ) -> None:
-    """Run both scraping and conversion steps."""
+    """Run scraping, recategorization, and conversion steps."""
     ctx.invoke(
         scrape,
         start_date=start_date,
@@ -253,6 +285,8 @@ def run_all(
         force=force,
         limit=limit,
     )
+    # Re-categorize files from unknown folder
+    ctx.invoke(recategorize)
     # Call convert with the same date range
     ctx.invoke(
         convert,
@@ -276,7 +310,7 @@ def clear_cache(ctx: click.Context) -> None:
             # Read cache to show info
             import json
 
-            with open(cache_file, "r") as f:
+            with open(cache_file, "r", encoding="utf-8") as f:
                 cache_data = json.load(f)
                 num_dates = len(cache_data.get("dates", {}))
 

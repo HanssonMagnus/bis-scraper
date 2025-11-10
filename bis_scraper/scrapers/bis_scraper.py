@@ -87,7 +87,7 @@ class BisScraper:
         """Load the date cache from disk."""
         if self.date_cache_file.exists():
             try:
-                with open(self.date_cache_file, "r") as f:
+                with open(self.date_cache_file, "r", encoding="utf-8") as f:
                     cache_data = json.load(f)
                     # Convert cache format if needed (for backwards compatibility)
                     if isinstance(cache_data, dict) and "version" in cache_data:
@@ -110,7 +110,7 @@ class BisScraper:
                 "dates": self.checked_dates,
                 "updated": datetime.datetime.now().isoformat(),
             }
-            with open(self.date_cache_file, "w") as f:
+            with open(self.date_cache_file, "w", encoding="utf-8") as f:
                 json.dump(cache_data, f, indent=2)
             logger.debug(f"Saved date cache with {len(self.checked_dates)} dates")
         except Exception as e:
@@ -147,6 +147,7 @@ class BisScraper:
         # Track if we found any speeches for this date
         date_had_speeches = False
         files_found_count = 0
+        had_network_error = False  # Track if we had network errors
 
         # Format date for URL: YYMMDD (without century)
         date_str = date_obj.strftime("%y%m%d")
@@ -198,19 +199,31 @@ class BisScraper:
                     return False
 
             except Exception as e:
-                if response.status_code != 404:  # Don't log 404s as errors
+                # Check if response exists before accessing status_code
+                # Network errors (DNS, connection) may occur before response is set
+                if "response" in locals() and response.status_code != 404:
                     logger.error(
                         f"Error scraping {date_obj.isoformat()} - {speech_code}: {str(e)}",
                         exc_info=True,
                     )
                     self.result.failed += 1
+                elif "response" not in locals():
+                    # Network error before response was created
+                    logger.error(
+                        f"Network error scraping {date_obj.isoformat()} - {speech_code}: {str(e)}",
+                        exc_info=True,
+                    )
+                    self.result.failed += 1
+                    had_network_error = True
 
-        # Mark this date as fully checked in the cache
-        self.checked_dates[cache_key] = {
-            "checked_at": datetime.datetime.now().isoformat(),
-            "had_speeches": date_had_speeches,
-            "files_found": files_found_count,
-        }
+        # Only mark date as checked if we didn't have network errors
+        # Network errors mean we couldn't fully check the date, so we shouldn't cache it
+        if not had_network_error:
+            self.checked_dates[cache_key] = {
+                "checked_at": datetime.datetime.now().isoformat(),
+                "had_speeches": date_had_speeches,
+                "files_found": files_found_count,
+            }
         # Save cache periodically (every 10 dates to balance performance and safety)
         if len(self.checked_dates) % 10 == 0:
             self._save_date_cache()
