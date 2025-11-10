@@ -42,6 +42,7 @@ INSTITUTIONS: List[str] = [
     "Board of Governors of the Federal Reserve System",
     "Bulgarian National Bank",
     "Central Bank of Argentina",
+    "Central Bank of Armenia",
     "Central Bank of Aruba",
     "Central Bank of Bahrain",
     "Central Bank of Barbados",
@@ -94,6 +95,7 @@ INSTITUTIONS: List[str] = [
     "Federal Reserve Bank of Richmond",
     "Federal Reserve Bank of San Francisco",
     "Hong Kong Monetary Authority",
+    "Cayman Islands Monetary Authority",
     "central bank of Hungary",
     "Maldives Monetary Authority",
     "Monetary Authority of Macao",
@@ -109,6 +111,7 @@ INSTITUTIONS: List[str] = [
     "Netherlands Bank",
     "Reserve Bank of Australia",
     "Reserve Bank of Fiji",
+    "Central Bank of The Gambia",
     "Reserve Bank of India",
     "Reserve Bank of Malawi",
     "Reserve Bank of New Zealand",
@@ -183,12 +186,15 @@ INSTITUTION_ALIASES: Dict[str, List[str]] = {
         "federal reserve board",
         "board of governors of the us fed",
         "federal reserve system",
+        "bd. of govnrs. of the us fed. res. system",
+        "chairman of the bd. of govnrs. of the us fed. res. system",
     ],
     "sveriges riksbank": [
         "bank of sweden",
         "sveriges riskbank",
         "swedish central bank",
         "sveriges risksbank",
+        "heikensten",  # Former governor
     ],
     "central bank of the republic of austria": [
         "austrian national bank",
@@ -196,8 +202,84 @@ INSTITUTION_ALIASES: Dict[str, List[str]] = {
         "austrian nationalbank",
     ],
     "central bank of norway": ["norges bank"],
-    "bank of france": ["banque de france"],
+    "bank of france": ["banque de france", "banque of france"],  # Typo variant
+    "federal reserve bank of new york": [
+        "president and chief executive officer of the federal reserve bank of new york",
+        "federal\nreserve bank of new york",  # Handle line breaks in metadata
+        "fed. res. bank of new york",
+        "fed res bank of new york",
+        "federal reserve bank of ny",
+    ],
+    "national bank of belgium": ["pierre wunsch"],  # Governor name
+    "european central bank": [
+        "ecb",
+        "european central",
+        "member of the executive board of the european central",
+        "willem f duisenberg",  # Former president
+        "mario draghi",  # Former president
+    ],
     "bank of portugal": ["banco de portugal"],
+    "bank of spain": ["banco de españa", "the banco de españa"],
+    "central bank of colombia": [
+        "banco de la república",
+        "banco de la república (bank of the republic)",
+        "bank of the republic",
+        "co-director of the bank of the republic",
+    ],
+    "central bank of malaysia": [
+        "bank negara malaysia",
+        "the bank negara malaysia",
+        "the bank of malaysia",
+        "negara malaysia",
+        "cb of malaysia",
+    ],
+    "central bank of the philippines": [
+        "bangko sentral ng pilipinas",
+        "the bangko sentral ng pilipinas",
+    ],
+    "central bank of trinidad and tobago": [
+        "trinidad & tobago",
+        "the central bank of trinidad & tobago",
+        "of trinidad & tobago",
+    ],
+    "central bank of the republic of turkey": [
+        "bank of turkey",
+        "the republic of türkiye",
+        "the central bank of the republic of türkiye",
+        "for the republic of turkey",
+        "central bank for the republic of turkey",
+    ],
+    "central bank of curaçao and sint maarten": [
+        "netherlands antilles",
+        "the netherlands antilles",
+        "bank of the netherlands antilles",
+        "the bank of the netherlands antilles",
+        "bank van de nederlandse antillen",
+        "the bank van de nederlandse antillen",
+        "the netherlands antilles (bank van de nederlandse antillen)",
+        "the bank of the netherlands antilles (bank van de nederlandse antillen)",
+        "central bank of curacao and sint maarten",
+        "centrale bank van curaçao en sint maarten",
+        "van curaçao en sint maarten",
+        "of curacao and sint maarten",
+    ],
+    "central bank of armenia": ["armenia", "of armenia"],
+    "central bank of the gambia": ["the gambia", "of the gambia"],
+    "central bank of hungary": [
+        "magyar nemzeti bank",
+        "magyar nemzeti bank (hungary's central bank)",
+        "deputy governor of magyar nemzeti bank (hungary's",
+    ],
+    "national bank of denmark": [
+        "danmarks nationalbank",
+        "danmarks national bank",
+        "governor of danmarks",
+    ],
+    "reserve bank of new zealand": [
+        "reserve of the bank of new zealand",
+        "of new zealand",
+    ],
+    "croatian national bank": ["croation national bank", "the croation national bank"],
     "netherlands bank": ["nederlandsche bank"],
     "south african reserve bank": ["bank of south africa"],
     "hong kong monetary authority": ["hong kong monetary"],
@@ -206,9 +288,20 @@ INSTITUTION_ALIASES: Dict[str, List[str]] = {
         "national bank of the republic of macedonia",
         "national bank of the republic of north macedonia",
     ],
-    "european central bank": ["ecb"],
     "central bank of ireland": ["authority of ireland"],
-    "central bank of the republic of turkey": ["bank of turkey"],
+    "bank indonesia": ["bank of indonesia", "the bank of indonesia"],
+    "bank of uganda": ["bank of the uganda"],
+    "central bank of bahrain": [
+        "bahrain monetary agency",
+        "the bahrain monetary agency",
+    ],
+    "monetary authority of macao": [
+        "mon. authority of macao",
+        "chairman of the mon. authority of macao",
+    ],
+    "bank of italy": ["baml of italy", "the baml of italy"],
+    "bank of israel": ["stanley fischer"],  # Former governor
+    "state bank of pakistan": ["ishrat husain"],  # Former governor
     "people's bank of china": ["bank of china"],
     "reserve bank of australia": ["australian reserve bank", "bank of australia"],
     "saudi arabian monetary agency": ["saudi central bank"],

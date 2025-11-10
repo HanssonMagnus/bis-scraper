@@ -8,7 +8,6 @@ from typing import Optional, Tuple
 
 from bis_scraper.models import ScrapingResult
 from bis_scraper.scrapers.bis_scraper import BisScraper
-from bis_scraper.scrapers.recategorize import recategorize_unknown_files
 from bis_scraper.utils.constants import RAW_DATA_DIR
 from bis_scraper.utils.file_utils import create_directory
 from bis_scraper.utils.institution_utils import normalize_institution_name
@@ -18,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 def scrape_bis(
     data_dir: Path,
-    log_dir: Path,
+    log_dir: Path,  # noqa: ARG001
     start_date: Optional[datetime.datetime] = None,
     end_date: Optional[datetime.datetime] = None,
     institutions: Optional[Tuple[str, ...]] = None,
@@ -29,7 +28,7 @@ def scrape_bis(
 
     Args:
         data_dir: Base directory for data storage
-        log_dir: Directory for log files
+        log_dir: Directory for log files (part of API signature for consistency, logging configured at CLI level)
         start_date: Start date for scraping
         end_date: End date for scraping
         institutions: Specific institutions to scrape (default: all)
@@ -132,12 +131,6 @@ def scrape_bis(
 
     # Get results
     result = scraper.get_results()
-
-    # Re-categorize files from unknown folder if any exist
-    recategorized_count, remaining_unknown = recategorize_unknown_files(data_dir)
-    if recategorized_count > 0:
-        logger.info(f"Re-categorized {recategorized_count} file(s) from unknown folder")
-        print(f"Re-categorized {recategorized_count} file(s) from unknown folder")
 
     # Log summary
     elapsed_time = time.time() - start_time
